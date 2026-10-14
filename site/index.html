@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>US-EU AI Arbitrage Tracker</title>
+<style>
+:root{--bg:#fafaf7;--fg:#1c1c1a;--mut:#6b6b66;--card:#fff;--line:#e4e4de;--acc:#1f6feb;--up:#1a7f37;--down:#c0392b;--watch:#b7791f}
+@media (prefers-color-scheme:dark){:root{--bg:#141413;--fg:#ecece8;--mut:#9a9a93;--card:#1d1d1b;--line:#2f2f2c;--acc:#5b9dff;--up:#4cc27a;--down:#ef6f60;--watch:#e0a84b}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+main{max-width:960px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:22px;margin:0 0 4px}h2{font-size:16px;margin:32px 0 12px}
+.sub{color:var(--mut);margin:0 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.row{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.claim{flex:1 1 380px;margin:0}
+.big{font-size:28px;font-weight:600;line-height:1}
+.delta{font-size:13px;margin-left:6px}.up{color:var(--up)}.down{color:var(--down)}
+.mut{color:var(--mut);font-size:13px}
+.tag{display:inline-block;font-size:12px;border:1px solid var(--line);border-radius:99px;padding:1px 8px;margin-right:6px;color:var(--mut)}
+.tag.validate{color:var(--up);border-color:var(--up)}.tag.watch{color:var(--watch);border-color:var(--watch)}
+svg{display:block;max-width:100%}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mut);font-weight:500}
+.scroll{overflow-x:auto}
+a{color:var(--acc)}
+details summary{cursor:pointer;color:var(--mut);font-size:13px;margin-top:8px}
+li{margin:2px 0}
+</style>
+</head>
+<body>
+<main>
+  <h1>US-EU AI Arbitrage Tracker</h1>
+  <p class="sub" id="updated">Loading…</p>
+
+  <h2>Hypotheses and conviction</h2>
+  <div id="theses"></div>
+
+  <h2>Candidates</h2>
+  <div class="card scroll"><table>
+    <thead><tr><th>Company</th><th>Stage / amount</th><th>Lead</th><th>Date</th><th>Score</th><th>Status</th></tr></thead>
+    <tbody id="cands"></tbody>
+  </table></div>
+
+  <h2>Run log</h2>
+  <div id="runs"></div>
+</main>
+<script>
+(function(){
+  var BASES=['data/','../data/'];
+  function get(path){
+    return BASES.reduce(function(p,b){
+      return p.catch(function(){return fetch(b+path).then(function(r){if(!r.ok)throw 0;return r.json();});});
+    },Promise.reject());
+  }
+  function el(tag,props,kids){
+    var n=document.createElement(tag);
+    Object.keys(props||{}).forEach(function(k){
+      if(k==='text')n.textContent=props[k];else if(k==='class')n.className=props[k];else n.setAttribute(k,props[k]);
+    });
+    (kids||[]).forEach(function(c){n.appendChild(typeof c==='string'?document.createTextNode(c):c);});
+    return n;
+  }
+  function safeLink(url,label){
+    if(/^https?:\/\//i.test(url||''))return el('a',{href:url,target:'_blank',rel:'noopener noreferrer',text:label});
+    return document.createTextNode(label);
+  }
+  function spark(points){
+    var W=220,H=48,P=4,ns='http://www.w3.org/2000/svg';
+    var svg=document.createElementNS(ns,'svg');
+    svg.setAttribute('viewBox','0 0 '+W+' '+H);svg.setAttribute('width',W);svg.setAttribute('height',H);
+    svg.setAttribute('role','img');svg.setAttribute('aria-label','Conviction trend, latest '+points[points.length-1]);
+    var x=function(i){return points.length<2?W/2:P+i*(W-2*P)/(points.length-1);};
+    var y=function(v){return H-P-(v/100)*(H-2*P);};
+    var pl=document.createElementNS(ns,'polyline');
+    pl.setAttribute('fill','none');pl.setAttribute('stroke','currentColor');pl.setAttribute('stroke-width','2');
+    pl.setAttribute('style','color:var(--acc)');
+    pl.setAttribute('points',points.map(function(v,i){return x(i)+','+y(v);}).join(' '));
+    svg.appendChild(pl);
+    var c=document.createElementNS(ns,'circle');
+    c.setAttribute('cx',x(points.length-1));c.setAttribute('cy',y(points[points.length-1]));c.setAttribute('r','3.5');
+    c.setAttribute('style','fill:var(--acc)');svg.appendChild(c);
+    return svg;
+  }
+  function renderTheses(d){
+    var box=document.getElementById('theses');
+    d.theses.forEach(function(t){
+      var h=t.conviction, last=h[h.length-1], prev=h.length>1?h[h.length-2]:null;
+      var delta=prev?last.score-prev.score:0;
+      var right=el('div',{},[
+        el('div',{},[el('span',{class:'big',text:String(last.score)}),
+          prev?el('span',{class:'delta '+(delta>=0?'up':'down'),text:(delta>=0?'+':'')+delta}):''
+        ]),
+        spark(h.map(function(e){return e.score;})),
+        el('div',{class:'mut',text:'Conviction, '+h.length+' reading'+(h.length>1?'s':'')})
+      ]);
+      var left=el('div',{class:'claim'},[
+        el('div',{},[el('span',{class:'tag',text:t.status})]),
+        el('p',{text:t.claim,style:'margin:6px 0'}),
+        el('div',{class:'mut',text:'Latest: '+last.note})
+      ]);
+      var ev=function(label,list){
+        return el('details',{},[el('summary',{text:label+' ('+list.length+')'}),
+          el('ul',{},list.map(function(e){return el('li',{},[safeLink(e.url,e.text||e.url)]);}))]);
+      };
+      var more=el('div',{},[
+        ev('Evidence for',t.evidence_for),ev('Evidence against',t.evidence_against),
+        el('details',{},[el('summary',{text:'Cheapest test and what would change my mind'}),
+          el('p',{text:'Test: '+t.cheapest_test}),el('p',{text:'Would change my mind: '+t.would_change_my_mind})])
+      ]);
+      box.appendChild(el('div',{class:'card'},[el('div',{class:'row'},[left,right]),more]));
+    });
+  }
+  function renderCands(d){
+    var tb=document.getElementById('cands');
+    d.candidates.forEach(function(c){
+      var s=c.scores&&c.scores.length?c.scores[c.scores.length-1].total:null;
+      var band=s==null?'unscored':s>=d.bands.validate?'validate':s>=d.bands.watch?'watch':'low priority';
+      var cls=band==='validate'||band==='watch'?band:'';
+      tb.appendChild(el('tr',{},[
+        el('td',{},[safeLink(c.source,c.company),el('div',{class:'mut',text:c.product})]),
+        el('td',{text:c.stage+' · $'+c.amount_usd_m+'M'}),
+        el('td',{text:c.lead}),
+        el('td',{text:c.date}),
+        el('td',{text:s==null?'–':String(s)}),
+        el('td',{},[el('span',{class:'tag '+cls,text:band})])
+      ]));
+    });
+  }
+  function renderRuns(idx){
+    var box=document.getElementById('runs');
+    idx.runs.slice().reverse().slice(0,14).forEach(function(day){
+      get('runs/'+day+'.json').then(function(r){
+        var card=el('div',{class:'card'},[
+          el('strong',{text:r.date}),el('span',{class:'mut',text:' · '+r.new_rounds+' new round(s)'}),
+          el('p',{text:r.summary,style:'margin:6px 0'})
+        ]);
+        if(r.blockers&&r.blockers.length)card.appendChild(el('div',{class:'mut',text:'Blockers: '+r.blockers.join('; ')}));
+        box.appendChild(card);
+      }).catch(function(){});
+    });
+  }
+  Promise.all([get('theses.json'),get('candidates.json'),get('runs/index.json')]).then(function(r){
+    document.getElementById('updated').textContent='Updated '+r[0].updated+' · '+r[0].theses.length+' hypotheses · '+r[1].candidates.length+' candidates';
+    renderTheses(r[0]);renderCands(r[1]);renderRuns(r[2]);
+  }).catch(function(){
+    document.getElementById('updated').textContent='Could not load data files.';
+  });
+})();
+</script>
+</body>
+</html>

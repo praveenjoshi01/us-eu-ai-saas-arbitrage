@@ -1,0 +1,24 @@
+{
+  "updated": "2026-10-14",
+  "scoring": {"us_proof": 0.20, "eu_white_space": 0.20, "structural_eu_gap": 0.25, "build_feasibility": 0.15, "ireland_buyers": 0.10, "eu_investor_appetite": 0.10},
+  "bands": {"drop_below": 60, "watch": 60, "validate": 75},
+  "candidates": [
+    {
+      "id": "healthleap",
+      "company": "Healthleap",
+      "product": "AI that flags hospital patients who may need a closer look",
+      "stage": "Seed + Series A",
+      "amount_usd_m": 38,
+      "lead": "Hummingbird Ventures (A); Sequoia and First Round (seed co-leads)",
+      "date": "2026-10-07",
+      "source": "https://techcrunch.com/2026/10/07/healthleap-raises-38m-for-its-ai-that-flags-hospital-patients-who-may-need-a-closer-look/",
+      "category": "healthcare",
+      "thesis_ids": ["t-regulated-workflows"],
+      "eu_competitors": [],
+      "eu_gap": "",
+      "scores": [],
+      "status": "unscored",
+      "note": "Logged from run 2026-10-14. EU competitor check and scoring still to do. Clinical AI may fall under the AI Act high-risk class and EU health-data rules."
+    }
+  ]
+}
