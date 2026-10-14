@@ -1,0 +1,35 @@
+{
+  "updated": "2026-10-14",
+  "theses": [
+    {
+      "id": "t-regulated-workflows",
+      "claim": "US application-layer AI in regulated workflows (banking ops, healthcare, insurance, legal) cannot be sold as-is in the EU because of GDPR, AI Act high-risk obligations and data residency, leaving room for EU-native builds.",
+      "status": "testing",
+      "conviction": [{"date": "2026-10-14", "score": 20, "note": "Seeded from the first routine run. Only anecdotal US examples so far (Kastle, Healthleap); no EU competitor or regulatory evidence gathered yet."}],
+      "evidence_for": [],
+      "evidence_against": [],
+      "cheapest_test": "For 5 US rounds in regulated verticals, count EU competitors on Dealroom and check whether the US vendor offers EU data residency.",
+      "would_change_my_mind": "EU incumbents or US vendors with EU regions already cover the vertical, or buyers show no willingness to switch."
+    },
+    {
+      "id": "t-language-local",
+      "claim": "Workflow AI that depends on local language, local law or local forms (tax, payroll, procurement, public sector) has structural EU white space because US vendors will not localise country by country.",
+      "status": "testing",
+      "conviction": [{"date": "2026-10-14", "score": 15, "note": "Seeded. No evidence yet."}],
+      "evidence_for": [],
+      "evidence_against": [],
+      "cheapest_test": "Pick 3 US procurement or finance-ops AI rounds and check supported EU languages and country-specific compliance.",
+      "would_change_my_mind": "Frontier-model localisation makes per-country builds trivial for US vendors."
+    },
+    {
+      "id": "t-ireland-reach",
+      "claim": "Ireland-based founders can reach EU enterprise buyers faster in sectors with a large Irish presence (funds administration, pharma, med-tech, big-tech EMEA HQs).",
+      "status": "testing",
+      "conviction": [{"date": "2026-10-14", "score": 20, "note": "Seeded. No evidence yet."}],
+      "evidence_for": [],
+      "evidence_against": [],
+      "cheapest_test": "List 20 named buyer roles in Irish funds/pharma and check which US AI vendors already sell to them.",
+      "would_change_my_mind": "Buyers are concentrated in Germany/France and decisions bypass Dublin."
+    }
+  ]
+}

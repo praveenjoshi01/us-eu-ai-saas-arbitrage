@@ -1,0 +1,8 @@
+{
+  "date": "2026-10-14",
+  "summary": "First run. No verified US application-layer rounds in the 24h window; search tooling returned stale results. Healthleap (Oct 7) logged for scoring. Three seed theses created.",
+  "new_rounds": 1,
+  "new_theses": ["t-regulated-workflows", "t-language-local", "t-ireland-reach"],
+  "conviction_changes": [],
+  "blockers": ["Claude Docs connector unavailable", "Search did not surface Crunchbase/TechCrunch/Superpower items from the last 24h"]
+}
